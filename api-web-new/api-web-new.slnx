@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="../api-web-new.Application/api-web-new.Application.csproj" />
+  <Project Path="../api-web-new.csproj.Domain/api-web-new.Domain.csproj" />
+  <Project Path="../api-web-new.Infrastructure/api-web-new.Infrastructure.csproj" />
+  <Project Path="api-web-new.csproj" />
+</Solution>

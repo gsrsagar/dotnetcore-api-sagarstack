@@ -1,4 +1,4 @@
-namespace Backend_API
+namespace api_web_new
 {
     public class WeatherForecast
     {
