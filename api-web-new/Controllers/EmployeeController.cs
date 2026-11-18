@@ -2,6 +2,7 @@
 using api_web_new.csproj.Domain.DTO.Request;
 using api_web_new.csproj.Domain.Entities;
 using api_web_new.csproj.Domain.Validators;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,12 +19,15 @@ namespace api_web_new.Controllers
 
         private readonly IEmployeeService<Employee, EmployeeRequestDTO> _employeeService;
         private readonly IEmployeeValidator _validator;
+
+        private readonly ILogger<EmployeeController> _logger;
         public EmployeeController(IEmployeeService<Employee, EmployeeRequestDTO> employeeService,
-             IEmployeeValidator validator
+             IEmployeeValidator validator , ILogger<EmployeeController> logger
             )
         {
             _employeeService = employeeService;
             _validator = validator;
+            _logger = logger;
         }
 
         // GET: api/<EmployeeController>
@@ -44,14 +48,22 @@ namespace api_web_new.Controllers
         public async Task<IActionResult> Post([FromBody] EmployeeRequestDTO value)
         {
             var validated = _validator.Validate(value);
+          
+                if (!(validated != null && validated != ValidationResult.Success))
+                {
+                    _logger.LogInformation(null, "Request Entered after validating with value");
+                    var result = await _employeeService.Add(value);
+                    return Ok(result); // 200 OK
+                }
 
-            if (!(validated != null && validated != ValidationResult.Success))
-            {
-                var result = await _employeeService.Add(value);
-                return Ok(result); // 200 OK
-            }
+                else
 
-            return BadRequest(new { message = validated.ErrorMessage }); // 400 Bad Request
+                {
+                    _logger.LogWarning(null, "INput data is not proepr it is missing or wrong fields and with {id}:" + value.Id);
+                    return BadRequest(new { message = validated.ErrorMessage }); // 400 Bad Request
+                }
+            
+           
         }
 
         // PUT api/<EmployeeController>/5

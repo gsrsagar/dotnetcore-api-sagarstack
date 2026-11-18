@@ -11,6 +11,9 @@ using Microsoft.OpenApi;
 using MySql.EntityFrameworkCore.Extensions;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
+using NLog;
+using NLog.Web;
+using api_web_new.Middlewares;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -71,6 +74,9 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Logging.ClearProviders();
+builder.Host.UseNLog();
+
 // till DI
 
 var app = builder.Build();
@@ -87,6 +93,7 @@ app.UseSwaggerUI(options =>
 
 app.MapGet("/", () => Results.Redirect("/swagger/index.html"));
 
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>(); // custom middleware
 // Configure the HTTP request pipeline. Middlewares in Rewuest pipeline
 if (app.Environment.IsDevelopment())
 {
