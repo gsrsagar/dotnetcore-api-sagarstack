@@ -9,8 +9,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace api_web_new.Controllers
 {
-    [Route("api/[controller]")] // api/employee
+   
     [ApiController]
+    [ApiVersion("2.0")]
+    [Route("api/v{version:apiVersion}/[controller]")] // api/v2/employee
     public class EmployeeController : ControllerBase
     {
 

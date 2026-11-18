@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace api_web_new.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")] // api/weatherforecast
+     [ApiVersion("2.0")]
+    [Route("api/v{version:apiVersion}/[controller]")] // api/v2/employee
     public class WeatherForecastController : ControllerBase
     {
 

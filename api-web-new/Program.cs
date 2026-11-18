@@ -7,7 +7,11 @@ using api_web_new.Infrastructure;
 using api_web_new.Infrastructure.Repositories;
 using api_web_new.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using MySql.EntityFrameworkCore.Extensions;
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,9 +39,53 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     });
 });
 
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(2, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+})
+.AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "My API",
+        Description = "My API Description"
+    });
+
+    options.SwaggerDoc("v2", new OpenApiInfo
+    {
+        Version = "v2",
+        Title = "My API v2",
+        Description = "My API Description v2"
+    });
+});
+
 // till DI
 
 var app = builder.Build();
+
+app.UseSwagger();
+
+app.UseSwaggerUI(options =>
+{
+    options.RoutePrefix = string.Empty; // Root URL
+    options.DocumentTitle = "My Versioned Web API";
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
+    options.SwaggerEndpoint("/swagger/v2/swagger.json", "API v2");
+});
+
+app.MapGet("/", () => Results.Redirect("/swagger/index.html"));
 
 // Configure the HTTP request pipeline. Middlewares in Rewuest pipeline
 if (app.Environment.IsDevelopment())
